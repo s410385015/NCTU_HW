@@ -17,6 +17,7 @@
 #include <time.h>
 #include <Eigen/Sparse>
 #include <Eigen/Core>
+
 using namespace Eigen;
 using namespace std;
 
@@ -512,6 +513,13 @@ void timf(int value)
 
 int main(int argc, char *argv[])
 {
+	//sMatrix s(2, 3);
+	//s.SetValue(1, 1, 2);
+	//s.Transpose().printMatrix();
+	
+
+
+	//return 0;
 	WindWidth = 800;
 	WindHeight = 800;
 
@@ -567,8 +575,7 @@ int main(int argc, char *argv[])
 
 	
 	
-	
-	
+		
 	RandomSelectFeature(RandomSize);
 	FindConnectivity();
 
