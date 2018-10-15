@@ -48,14 +48,33 @@ def main():
     for i in range(len(o)):
         print("-------------------------")
         print(o[i])
+        
+        '''
+        Maximum likelihood is m/N
+        m = number of 1 in current trails
+        N = total total trails
+        '''
         print("Binomial likelihood(MLE):")
         var=(p[i][1]/p[i][0])
         print(round(var,3))
+
+
+        '''
+        a = number of 1 in past 
+        b = number of 0 in past
+        '''
         print("Prior:")
+        print("a : "+str(a)+"  "+"b : "+str(b))
         print(a/(a+b))
+
+
+        '''
+        Posterior can be calculate as beta(p,a+m,b+N-m)
+        '''
         print("Posterior:")
         a+=p[i][1]
         b+=(p[i][0]-p[i][1])
+        print("a : "+str(a)+"  "+"b : "+str(b))
         print(a/(a+b))
 
 
