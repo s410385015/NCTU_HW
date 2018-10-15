@@ -77,6 +77,7 @@ def Classifier(count,prob,test,total):
     predict=np.zeros(len(test)).astype(int)
     test=(test/8).astype(int)
 
+    score=np.zeros((len(test),len(count)))
     #for k in range(len(count)):
         #prob[:][k][:]=(prob[:][k][:]/count[k])
         
@@ -92,12 +93,13 @@ def Classifier(count,prob,test,total):
             sum=np.sum(tmp,axis=0)
             #sum=np.prod(tmp)
             sum+=log(count[k]/total)
+            score[i][k]=sum
             if sum>max:
                 max=sum
                 pdt_class=k
         predict[i]=pdt_class
     
-    return predict
+    return predict,score
 
 
 '''
@@ -130,6 +132,7 @@ Calculate the posterior with the Gaussion
 def ClassifierWithGaussion(mean,variance,test,total,count):
       
     predict=np.zeros(len(test)).astype(int)
+    score=np.zeros((len(test),len(count)))
 
     for i in range (len(test)):
         max=-inf
@@ -142,18 +145,14 @@ def ClassifierWithGaussion(mean,variance,test,total,count):
             _g=g[g>0]
             _g=np.log(_g)
             sum=np.sum(_g,axis=0)
-        
-            #b=Loglikelihood(mean[k],variance[k],test[i])
-            #sum=np.prod(g)
-            #sum=np.sum(Gaussion(mean[k],variance[k],test[i]),axis=0)
             sum+=log((count[k]/total))
-            #sum*=(count[k]/total)
+            score[i][k]=sum
             if sum>max:
                 max=sum
                 pdt_class=k
         predict[i]=pdt_class
     
-    return predict
+    return predict,score
 
 
 '''
@@ -165,10 +164,29 @@ def Gaussion(m,v,x):
     return ((1/np.sqrt(2*pi*v))*(e**(-((x-m)**2)/(2*v))))
 
 
+'''
+print the score of each row
+eg. # 0 1 2 3 4 5 6 7 8 9
+    1 a b c d e f g h i j
+    2 a b c d e f g h i j
+'''
+
+def WriteScore(path,score):
+    path=os.path.split(os.path.realpath(__file__))[0]+'\\'+path
+    file=open(path,"w")
+    file.write("#,0,1,2,3,4,5,6,7,8,9\n")
+    file.close()
+    file=open(path,"a")
+    for i in range(len(score)):
+        s=str(i)
+        for j in range(len(score[i])):
+            s+=","+str(score[i][j])
+        file.write(s+'\n')
+    file.close()
 
 def main():
 
-
+  
     class_num=10
 
     image_train=ReadMNIST('train-images.idx3-ubyte')
@@ -200,10 +218,10 @@ def main():
         print("Done!")
 
         print("Starting predict ...")
-        predict=Classifier(count,prob_table,image_test,total)
+        predict,score=Classifier(count,prob_table,image_test,total)
         print("Done!")
         result=True
-
+        WriteScore("Discrete_Score.csv",score)
     # continuous mode
     elif mode == '1':
 
@@ -213,11 +231,14 @@ def main():
         print("Done!")
 
         print("Starting predict ...")
-        predict=ClassifierWithGaussion(mean,variance,image_test,total,count)
+        predict,score=ClassifierWithGaussion(mean,variance,image_test,total,count)
         print("Done!")
         result=True
-
+        WriteScore("Continuous_Score.csv",score)
     if result == True:
+        
+        print("Write score to file ...")
+        
         count=[0 for i in range(class_num)]
         total=len(predict)
         for i in range(total):
