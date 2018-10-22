@@ -577,9 +577,10 @@ int main(int argc, char *argv[])
 	
 		
 	RandomSelectFeature(RandomSize);
+	Start = clock();
 	FindConnectivity();
 
-	Start = clock();
+	
 	connectivityData.resize(mesh->numvertices);
 	SolveLinearLeastSquares();
 	End = clock();

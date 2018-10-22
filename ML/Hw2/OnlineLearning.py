@@ -40,7 +40,7 @@ def ReadFromFile(path):
 
 
 def main():
-    o,p = ReadFromFile("trails.txt")
+    o,p = ReadFromFile("test.txt")
     a=input(" parameter a for the initial beta prior : ")
     b=input(" parameter b for the initial beta prior : ")
     a=float(a)
