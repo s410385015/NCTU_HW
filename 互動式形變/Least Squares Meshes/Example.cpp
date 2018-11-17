@@ -58,7 +58,7 @@ void FindConnectivity()
 	for (int i = 0; i < mesh->numtriangles; i++){
 		for (int j = 0; j < 3; j++){
 			for (int k = 0; k < 3; k++){
-				
+
 				if (j != k
 					&&find(connectivityData[mesh->triangles[i].vindices[j] - 1].begin(),
 					connectivityData[mesh->triangles[i].vindices[j] - 1].end(),
@@ -68,7 +68,7 @@ void FindConnectivity()
 
 					connectivityData[(mesh->triangles[i].vindices[j]) - 1].push_back((mesh->triangles[i].vindices[k]) - 1);
 				}
-				
+
 			}
 		}
 	}
@@ -76,52 +76,52 @@ void FindConnectivity()
 
 SparseMatrix<double> GenerateConstraints()
 {
-	
+
 	vector<Triplet<double>> coff;
-	
+
 	//Fairness constraint 
 	for (int i = 0; i < mesh->numvertices; i++)
 	{
 		coff.push_back(Triplet<double>(i, i, 1));
-		
+
 
 		for (int j = 0; j < connectivityData[i].size(); j++)
 		{
 			coff.push_back(Triplet<double>(i, connectivityData[i][j], (-1 / (double)(connectivityData[i].size()))));
-			
+
 		}
 	}
 
-	
+
 	for (int i = 0; i < RandomSize; i++)
 	{
-		coff.push_back(Triplet<double>(mesh->numvertices + i, featureList[i] , 1));
+		coff.push_back(Triplet<double>(mesh->numvertices + i, featureList[i], 1));
 
 	}
 
 	SparseMatrix<double> A(mesh->numvertices + RandomSize, mesh->numvertices);
 	A.setFromTriplets(coff.begin(), coff.end());
-	
+
 
 	return A;
-	
+
 }
 
 SparseMatrix<double> GenerateTargerPos()
 {
 
 	vector<Triplet<double>> coff;
-	
-	
+
+
 	for (int i = 0; i < RandomSize; i++)
 		for (int j = 0; j < 3; j++)
-			coff.push_back(Triplet<double>(i + mesh->numvertices, j , mesh->vertices[(featureList[i]+1) * 3 + j]));
-			
-	
+			coff.push_back(Triplet<double>(i + mesh->numvertices, j, mesh->vertices[(featureList[i] + 1) * 3 + j]));
+
+
 	SparseMatrix<double> B(mesh->numvertices + RandomSize, 3);
 	B.setFromTriplets(coff.begin(), coff.end());
 
-	
+
 	return B;
 }
 
@@ -131,15 +131,15 @@ void SolveLinearLeastSquares()
 	SparseMatrix<double> A = GenerateConstraints();
 	SparseMatrix<double> ATA = (A.transpose())*A;
 	SparseMatrix<double> B = (A.transpose())*GenerateTargerPos();
-	
-	
+
+
 	SimplicialCholesky<SparseMatrix<double>> chol(ATA);
 	MatrixXd  result = chol.solve(B);
-	
+
 
 	for (int i = 0; i < mesh->numvertices; i++)
 		for (int j = 0; j < 3; j++)
-			mesh_new->vertices[(i+1) * 3 + j] = result(i, j);
+			mesh_new->vertices[(i + 1) * 3 + j] = result(i, j);
 
 }
 
@@ -151,9 +151,9 @@ float GetFittingError()
 	for (int i = 0; i < mesh->numvertices; i++)
 	{
 		float x = rawVertex[i * 3] - mesh_new->vertices[i * 3];
-		float y = rawVertex[i * 3+1] - mesh_new->vertices[i * 3 + 1];
-		float z = rawVertex[i * 3+2] - mesh_new->vertices[i * 3 + 2];
-		
+		float y = rawVertex[i * 3 + 1] - mesh_new->vertices[i * 3 + 1];
+		float z = rawVertex[i * 3 + 2] - mesh_new->vertices[i * 3 + 2];
+
 		error += (x*x + y*y + z*z);
 	}
 
@@ -291,21 +291,21 @@ void Display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	
+
 	glLoadIdentity();
 	glTranslatef(0.8, 0.0, -3.5);
 
 	glPushMatrix();
 	tbMatrix();
 
-	
+
 	// render solid model
 	glEnable(GL_LIGHTING);
 	glColor3f(1.0, 1.0, 1.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glmDraw(mesh, GLM_SMOOTH);
 
-	
+
 	// render wire model
 	glPolygonOffset(1.0, 1.0);
 	glEnable(GL_POLYGON_OFFSET_FILL);
@@ -319,7 +319,7 @@ void Display(void)
 	glColor3f(1.0, 0.0, 0.0);
 	glDisable(GL_LIGHTING);
 	//glBegin(GL_POINTS);
-	
+
 	glPopMatrix();
 
 
@@ -336,7 +336,7 @@ void Display(void)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glmDraw(mesh_new, GLM_SMOOTH);
 
-	
+
 	// render wire model
 	//glPolygonOffset(1.0, 1.0);
 	glEnable(GL_POLYGON_OFFSET_FILL);
@@ -350,7 +350,7 @@ void Display(void)
 	glColor3f(1.0, 0.0, 0.0);
 	glDisable(GL_LIGHTING);
 	//glBegin(GL_POINTS);
-	
+
 	for (int i = 0; i < featureList.size(); i++)
 	{
 		int idx = featureList[i];
@@ -403,6 +403,7 @@ void key(unsigned char key, int x, int y)
 
 	switch (key)
 	{
+		
 		// ascii code 27 is escape key
 	case 27:
 		glutDestroyWindow(WinId);
@@ -516,7 +517,7 @@ int main(int argc, char *argv[])
 	//sMatrix s(2, 3);
 	//s.SetValue(1, 1, 2);
 	//s.Transpose().printMatrix();
-	
+
 
 
 	//return 0;
@@ -573,19 +574,19 @@ int main(int argc, char *argv[])
 		rawVertex[i] = mesh->vertices[i];
 
 
-	
-	
-		
+
+
+
 	RandomSelectFeature(RandomSize);
 	Start = clock();
 	FindConnectivity();
 
-	
+
 	connectivityData.resize(mesh->numvertices);
 	SolveLinearLeastSquares();
 	End = clock();
 
-	printf("reconstruction time=%f\n", (End-Start)/CLOCKS_PER_SEC);
+	printf("reconstruction time=%f\n", (End - Start) / CLOCKS_PER_SEC);
 	printf("Fitting error=%f\n", GetFittingError());
 	featureList.clear();
 

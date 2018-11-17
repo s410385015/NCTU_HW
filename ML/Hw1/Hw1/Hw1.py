@@ -196,6 +196,7 @@ def main():
   
     plt.title("b-Newton")
     plt.plot(x_plot, y_plot)
+    
     plt.show()
 
 
