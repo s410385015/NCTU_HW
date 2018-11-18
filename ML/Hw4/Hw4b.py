@@ -55,6 +55,7 @@ def main():
     class_num=10
 
     _lambda=np.random.dirichlet(np.ones(10))
+    pre_lambda=_lambda
     p=np.random.rand(class_num,dim)
     p=p/2+0.25
     w=np.empty([img_num,class_num])
@@ -62,30 +63,51 @@ def main():
     print("lambda")
     print(_lambda)
 
-    for epoch in range(10):
+    for epoch in range(100):
         #E step
         #calculate w
+        '''
         for c in range(class_num):
-            for n in range(img_num):
-                tmp=(p[c,:]**image_train[n,:])*((1-p[c,:])**(1-image_train[n,:]))
-                tmp=np.log(tmp)
-                tmp=np.sum(tmp)
-                w[n][c]=exp(tmp+log(_lambda[c]))
-        for n in range(img_num):
-            w[n,:]/=(np.sum(w[n,:]))
-           
+            tmp=(p[c,:]**image_train[:,:])*((1-p[c,:])**(1-image_train[:,:]))
+            print(np.shape(tmp))
+            tmp=np.log(tmp)
+            tmp=np.sum(tmp,axis=1)
+            tmp+=log(_lambda[c])
 
-
+            w[:,c]=np.exp(tmp)
+        '''    
+        tmp=np.dot(image_train,np.log(p.T))+np.dot(1-image_train,np.log(1-p.T))
+        tmp[:]+=_lambda
+        w=np.exp(tmp)
+        #for n in range(img_num):
+            #w[n,:]/=(np.sum(w[n,:]))
+       
+        w/=(np.sum(w,axis=1).reshape(len(w),1))
+       
         
         #M step
-        for c in range(class_num):
-            _lambda[c]=np.sum(w[:,c])/img_num
-        for d in range(dim):
-            for c in range(class_num):
-                p[c][d]=max(np.sum(w[:,c]*image_train[:,d])/np.sum(w[:,c]),1e-50)
-        #p[p<1e-50]=1e-50
+       
+        _lambda=np.sum(w,axis=0)/img_num
+       
+        #for d in range(dim):
+            #for c in range(class_num):
+                #p[c][d]=max(np.sum(w[:,c]*image_train[:,d])/np.sum(w[:,c]),1e-50)
+        
+        
+        r=np.dot(w.T,image_train)
+        q=np.sum(w,axis=0).reshape(class_num,1)
+        p=r/q
+        p[p<1e-50]=1e-50
         _lambda[_lambda<1e-5]=1e-5
+        print("----------------")
+        print("iteration: "+str(epoch))
         print(_lambda)
+        error=np.sum(np.abs(pre_lambda-_lambda))
+        pre_lambda=_lambda
+        print("error: "+str(error))
+        if error <0.005:
+            break
+
         
   
 if __name__ =="__main__":
