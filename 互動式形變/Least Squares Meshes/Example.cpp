@@ -74,6 +74,8 @@ void FindConnectivity()
 	}
 }
 
+
+
 SparseMatrix<double> GenerateConstraints()
 {
 
